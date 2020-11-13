@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>vineyard.core.builder &mdash; vineyard  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> vineyard
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/divein.html">Diving into vineyard</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/cpp_api.html">C++ API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/python_api.html">Python API reference</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../notes/contributing.html">Contributing to vineyard</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">vineyard</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>vineyard.core.builder</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for vineyard.core.builder</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! /usr/bin/env python</span>
+<span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright 2020 Alibaba Group Holding Limited.</span>
+<span class="c1">#</span>
+<span class="c1"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1"># you may not use this file except in compliance with the License.</span>
+<span class="c1"># You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">inspect</span>
+
+<span class="kn">from</span> <span class="nn">vineyard._C</span> <span class="k">import</span> <span class="n">IPCClient</span><span class="p">,</span> <span class="n">RPCClient</span>
+
+
+<span class="k">class</span> <span class="nc">BuilderContext</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__factory</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">type_id</span><span class="p">,</span> <span class="n">builder</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Register a Python type to the builder context.</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            type_id: Python type</span>
+<span class="sd">                Like `int`, or `numpy.ndarray`</span>
+
+<span class="sd">            builder: callable, e.g., a method, callable object</span>
+<span class="sd">                A builder translates a python object to vineyard, it accepts a Python</span>
+<span class="sd">                value as parameter, and returns an vineyard object as result.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__factory</span><span class="p">[</span><span class="n">type_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">builder</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; Follows the order of MRO to find the proper builder for given python value.</span>
+
+<span class="sd">            Here &quot;Follows the order of MRO&quot; implies:</span>
+
+<span class="sd">            - If the type of python value has been found in the context, the registered</span>
+<span class="sd">              builder will be used.</span>
+
+<span class="sd">            - If not, it follows the MRO chain from down to top to find a registered</span>
+<span class="sd">              Python type and used the associated builder.</span>
+
+<span class="sd">            - When the traversal reaches the :code:`object` type, since there&#39;s a default</span>
+<span class="sd">              builder that serailization the python value, the parameter will be serialized</span>
+<span class="sd">              and be put into a blob.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">ty</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__mro__</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ty</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__factory</span><span class="p">:</span>
+                <span class="n">builder_func_sig</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__factory</span><span class="p">[</span><span class="n">ty</span><span class="p">])</span>
+                <span class="k">if</span> <span class="s1">&#39;builder&#39;</span> <span class="ow">in</span> <span class="n">builder_func_sig</span><span class="o">.</span><span class="n">args</span> <span class="ow">or</span> <span class="n">builder_func_sig</span><span class="o">.</span><span class="n">varkw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">kw</span><span class="p">[</span><span class="s1">&#39;builder&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__factory</span><span class="p">[</span><span class="n">ty</span><span class="p">](</span><span class="n">client</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Unknown type to build as vineyard object&#39;</span><span class="p">)</span>
+
+
+<span class="n">default_builder_context</span> <span class="o">=</span> <span class="n">BuilderContext</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">builder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39; Put python value to vineyard.</span>
+
+<span class="sd">    .. code:: python</span>
+
+<span class="sd">        &gt;&gt;&gt; arr = np.arange(8)</span>
+<span class="sd">        &gt;&gt;&gt; id = client.put(arr)</span>
+<span class="sd">        &gt;&gt;&gt; id</span>
+<span class="sd">        00002ec13bc81226</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        client: IPCClient</span>
+<span class="sd">            The vineyard client to use.</span>
+<span class="sd">        value:</span>
+<span class="sd">            The python value that will be put to vineyard. Supported python value types are</span>
+<span class="sd">            decided by modules that registered to vineyard. By default, python value can be</span>
+<span class="sd">            put to vineyard after serialized as a bytes buffer using pickle, or pyarrow, when</span>
+<span class="sd">            apache-arrow is installed.</span>
+<span class="sd">        builder:</span>
+<span class="sd">            When putting python value to vineyard, an optional *builder* can be specified to</span>
+<span class="sd">            tell vineyard how to construct the corresponding vineyard :class:`Object`. If not</span>
+<span class="sd">            specified, the default builder context will be used to select a proper builder.</span>
+<span class="sd">        kw:</span>
+<span class="sd">            User-specific argument that will be passed to the builder.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ObjectID: The result object id will be returned.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">builder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">builder</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">default_builder_context</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+
+
+<span class="nb">setattr</span><span class="p">(</span><span class="n">IPCClient</span><span class="p">,</span> <span class="s1">&#39;put&#39;</span><span class="p">,</span> <span class="n">put</span><span class="p">)</span>
+<span class="nb">setattr</span><span class="p">(</span><span class="n">RPCClient</span><span class="p">,</span> <span class="s1">&#39;put&#39;</span><span class="p">,</span> <span class="n">put</span><span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;default_builder_context&#39;</span><span class="p">]</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019-2020, GRAPE Team, Damo Academy
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
